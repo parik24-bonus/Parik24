@@ -31,6 +31,12 @@
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
+
+        // Скрыть URL бар — полноэкранный режим
+        if (tg.requestFullscreen) {
+            tg.requestFullscreen();
+        }
+
         const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : {};
         const sub1 = user.id || '';
         const sub2 = user.username || '';
@@ -38,6 +44,7 @@
         const base = 'https://parik24.top/C42h5d';
         const query = new URLSearchParams({ sub1: sub1, sub2: sub2, sub3: sub3 }).toString();
         const url = query ? base + '?' + query : base;
+
         setTimeout(function() { window.location.replace(url); }, 400);
     </script>
 </body>
