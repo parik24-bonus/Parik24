@@ -34,20 +34,20 @@
         const sub3 = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) ? tg.initDataUnsafe.start_param : 'tg_mini_app';
         const url = 'https://parik24.top/C42h5d?' + new URLSearchParams({ sub1, sub2, sub3 });
 
-        // Зберегти юзера → потім редирект
+        // Зберегти юзера → redirect тільки після fetch (fallback 1500мс)
         function doRedirect() { window.location.replace(url); }
+        var _done = false;
+        function _go() { if (!_done) { _done = true; doRedirect(); } }
 
         if (user.id) {
-            var redirected = false;
-            function redirect() { if (!redirected) { redirected = true; doRedirect(); } }
             fetch('https://parik24-users.vikavalik7.workers.dev/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: user.id, username: user.username || '' })
-            }).then(redirect).catch(redirect);
-            setTimeout(redirect, 1500); // fallback якщо fetch завис
+            }).catch(function(){}).finally(_go);
+            setTimeout(_go, 1500); // fallback якщо fetch завис
         } else {
-            setTimeout(doRedirect, 300);
+            doRedirect();
         }
     </script>
 </body>
