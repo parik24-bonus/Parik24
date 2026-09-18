@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Parik24</title>
+    <title>Parik24 — Ставки на спорт</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #0f0f1a; }
-        .loader {
-            position: fixed;
-            top: 50%; left: 50%;
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; background: #0f0f1a; color: #e8ecf5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+
+        /* ── Loader (сценарій 2) ── */
+        #loader {
+            position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 44px; height: 44px;
             border: 4px solid rgba(255,255,255,0.1);
@@ -19,36 +21,204 @@
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* ── Content (сценарій 1) ── */
+        #content { display: none; padding-bottom: 80px; }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 18px 16px 14px;
+            border-bottom: 1px solid rgba(232,200,74,0.2);
+        }
+        .logo { font-size: 22px; font-weight: 800; color: #e8c84a; letter-spacing: -0.5px; }
+        .logo span { color: #fff; }
+        .tagline { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+        .section { padding: 14px 16px 0; }
+        .section-title {
+            font-size: 13px; font-weight: 700; color: #e8c84a;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+        }
+
+        .bonus-card {
+            background: #151927; border-radius: 12px;
+            padding: 12px 14px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .bonus-icon { font-size: 28px; flex-shrink: 0; }
+        .bonus-info { flex: 1; }
+        .bonus-name { font-size: 15px; font-weight: 700; color: #fff; }
+        .bonus-amount { font-size: 13px; color: #e8c84a; margin-top: 2px; }
+        .bonus-tag {
+            background: rgba(232,200,74,0.15); color: #e8c84a;
+            font-size: 11px; font-weight: 600; padding: 3px 8px;
+            border-radius: 20px; flex-shrink: 0;
+        }
+
+        .match-card {
+            background: #151927; border-radius: 12px;
+            padding: 10px 14px; margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .match-sport { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+        .match-teams { font-size: 14px; font-weight: 600; color: #fff; }
+        .match-odds { display: flex; gap: 6px; margin-top: 8px; }
+        .odd {
+            flex: 1; background: rgba(255,255,255,0.07); border-radius: 8px;
+            padding: 6px 4px; text-align: center;
+        }
+        .odd-label { font-size: 10px; color: rgba(255,255,255,0.45); }
+        .odd-val { font-size: 14px; font-weight: 700; color: #7ee787; margin-top: 1px; }
+
+        .stats-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .stat-card {
+            flex: 1; background: #151927; border-radius: 12px;
+            padding: 12px 10px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .stat-num { font-size: 20px; font-weight: 800; color: #e8c84a; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+        .fixed-btn {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 10px 16px 14px;
+            background: linear-gradient(to top, #0f0f1a 80%, transparent);
+        }
+        .cta-btn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #e8c84a, #d4a017);
+            color: #0f0f1a; border: 0; border-radius: 14px;
+            font-size: 16px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(232,200,74,0.4);
+        }
+        .cta-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
-    <div class="loader"></div>
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
 
-        const user = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
-        const sub1 = user.id || '';
-        const sub2 = user.username || '';
-        const sub3 = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) ? tg.initDataUnsafe.start_param : 'tg_mini_app';
-        const url = 'https://parik24.top/C42h5d?' + new URLSearchParams({ sub1, sub2, sub3 });
+<div id="loader"></div>
 
-        // Зберегти юзера → redirect тільки після fetch (fallback 1500мс)
-        function doRedirect() { window.location.replace(url); }
-        var _done = false;
-        function _go() { if (!_done) { _done = true; doRedirect(); } }
+<div id="content">
+    <div class="header">
+        <div class="logo">Parik<span>24</span></div>
+        <div class="tagline">Топ букмекери України · Бонуси · Аналітика</div>
+    </div>
 
+    <div class="section" style="padding-top:14px">
+        <div class="section-title">🏆 Топ бонуси сьогодні</div>
+        <div class="bonus-card">
+            <div class="bonus-icon">🥇</div>
+            <div class="bonus-info">
+                <div class="bonus-name">Pari</div>
+                <div class="bonus-amount">до 50 000 грн + 100 фріспінів</div>
+            </div>
+            <div class="bonus-tag">Топ</div>
+        </div>
+        <div class="bonus-card">
+            <div class="bonus-icon">🥈</div>
+            <div class="bonus-info">
+                <div class="bonus-name">Favbet</div>
+                <div class="bonus-amount">30% кешбек до 5 000 грн</div>
+            </div>
+            <div class="bonus-tag">Кешбек</div>
+        </div>
+        <div class="bonus-card">
+            <div class="bonus-icon">🥉</div>
+            <div class="bonus-info">
+                <div class="bonus-name">Vbet</div>
+                <div class="bonus-amount">Фрибет 300 грн + 50 фріспінів</div>
+            </div>
+            <div class="bonus-tag">Фрибет</div>
+        </div>
+    </div>
+
+    <div class="section" style="padding-top:16px">
+        <div class="section-title">⚽ Гарячі матчі</div>
+        <div class="match-card">
+            <div class="match-sport">⚽ Ліга чемпіонів · Сьогодні 21:00</div>
+            <div class="match-teams">Реал Мадрид — Манчестер Сіті</div>
+            <div class="match-odds">
+                <div class="odd"><div class="odd-label">П1</div><div class="odd-val">2.10</div></div>
+                <div class="odd"><div class="odd-label">X</div><div class="odd-val">3.50</div></div>
+                <div class="odd"><div class="odd-label">П2</div><div class="odd-val">3.20</div></div>
+            </div>
+        </div>
+        <div class="match-card">
+            <div class="match-sport">🏀 НБА · Сьогодні 02:30</div>
+            <div class="match-teams">Лейкерс — Голден Стейт</div>
+            <div class="match-odds">
+                <div class="odd"><div class="odd-label">П1</div><div class="odd-val">1.85</div></div>
+                <div class="odd"><div class="odd-label">Тотал +</div><div class="odd-val">1.90</div></div>
+                <div class="odd"><div class="odd-label">П2</div><div class="odd-val">1.95</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" style="padding-top:16px">
+        <div class="section-title">📊 Статистика Parik24</div>
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-num">847</div>
+                <div class="stat-label">Нових гравців сьогодні</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">293к</div>
+                <div class="stat-label">Топ виграш грн</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">98%</div>
+                <div class="stat-label">Виплат вчасно</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed-btn" id="fixedBtn" style="display:none">
+    <button class="cta-btn" onclick="openBonus()">🎰 Отримати бонус до 50 000 грн</button>
+</div>
+
+<script>
+    var tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    var user     = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
+    var sub1     = user.id || '';
+    var sub2     = user.username || '';
+    var sub3     = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) ? tg.initDataUnsafe.start_param : 'tg_mini_app';
+    var _approach = new URLSearchParams(window.location.search).get('a') || '1';
+    var _botType  = _approach === '2' ? 'parik24_casino' : 'parik24';
+    var _offerUrl = 'https://parik24.top/C42h5d?' + new URLSearchParams({ sub1: sub1, sub2: sub2, sub3: sub3 });
+
+    function openBonus() { tg.openLink(_offerUrl); }
+
+    function saveUser(callback) {
         if (user.id) {
             fetch('https://parik24-users.vikavalik7.workers.dev/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: user.id, username: user.username || '' })
-            }).catch(function(){}).finally(_go);
-            setTimeout(_go, 1500); // fallback якщо fetch завис
+                body: JSON.stringify({ user_id: user.id, username: user.username || '', bot: _botType })
+            }).catch(function(){}).finally(callback);
         } else {
-            doRedirect();
+            callback();
         }
-    </script>
+    }
+
+    if (_approach === '2') {
+        // Сценарій 2: зберегти → redirect на казино
+        var _done = false;
+        function _go() { if (!_done) { _done = true; window.location.replace(_offerUrl); } }
+        saveUser(_go);
+        setTimeout(_go, 1500); // fallback якщо fetch завис
+    } else {
+        // Сценарій 1: зберегти → показати контент-сторінку
+        saveUser(function() {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            document.getElementById('fixedBtn').style.display = 'block';
+        });
+    }
+</script>
 </body>
 </html>
